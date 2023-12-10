@@ -25,7 +25,16 @@ void find_item(char *dirname, char *pattern)
             }
 
             struct stat itemstat;
-            stat(fullpath, &itemstat);
+
+            /* Usa lstat para não ir atrás de link simbólico.
+             * Dá erro se for a tras */
+            if (lstat(fullpath, &itemstat) == -1)
+            {
+                fprintf(stderr, "Erro ao obter informções sobre o item %s\n",
+                    fullpath);
+                free(fullpath);
+                continue;
+            }
 
             /* Se for diretório, faz chamada recursiva */
             if (S_ISDIR(itemstat.st_mode))
